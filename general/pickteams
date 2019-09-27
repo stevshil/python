@@ -17,7 +17,11 @@ for name in teamData:
     # First find a team that is too small
     curteamsize=teamsize+100
     while curteamsize > teamsize:
-        teamnum=int((random())*numteams)+1
+        # Randomise the random number
+        x=0
+        while x <= int((random()*10000000)*random()*10000):
+            teamnum=int((random())*numteams)+1
+            x = x + 1
 
         try:
             curteamsize=len(teams[teamnum])
@@ -26,9 +30,9 @@ for name in teamData:
             curteamsize=0
 
     # Place member
-    print("Placing "+name)
-    print("Current team size: "+str(curteamsize))
-    print("Placing into team: "+str(teamnum))
+    #print("Placing "+name)
+    #print("Current team size: "+str(curteamsize))
+    #print("Placing into team: "+str(teamnum))
     if curteamsize == 0:
         teams[teamnum]=[name]
     else:
