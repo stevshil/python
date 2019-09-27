@@ -1,0 +1,36 @@
+#!/usr/bin/python3
+
+from random import random
+import sys
+import traceback
+
+teamFH=open("teams.txt","r")
+teamsize=int(sys.argv[1])-1
+numteams=int(sys.argv[2])
+teamData=teamFH.readlines()
+teamFH.close()
+teams={}
+
+print("Team sizes "+str(teamsize))
+print("Number of teams "+str(numteams))
+for name in teamData:
+    # First find a team that is too small
+    curteamsize=teamsize+100
+    while curteamsize > teamsize:
+        teamnum=int((random())*numteams)+1
+
+        try:
+            curteamsize=len(teams[teamnum])
+        except Exception:
+        #    traceback.print_exc()
+            curteamsize=0
+
+    # Place member
+    print("Placing "+name)
+    print("Current team size: "+str(curteamsize))
+    print("Placing into team: "+str(teamnum))
+    if curteamsize == 0:
+        teams[teamnum]=[name]
+    else:
+        teams[teamnum].append(name)
+print(teams)
