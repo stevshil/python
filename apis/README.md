@@ -19,3 +19,7 @@ pip3 install slackclient
 You will need an API token that will need to be stored in SLACK_API_TOKEN environment variable.
 
 To generate the token you will need to go to https://api.slack.com/custom-integrations/legacy-tokens and click **Create token** or if you've forgotten then you'll need to **Re-issue token**
+
+## Further reading
+
+https://github.com/slackapi/python-slackclient
