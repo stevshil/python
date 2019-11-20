@@ -1,0 +1,51 @@
+#!/usr/bin/python3.7
+
+import boto3
+import datetime
+
+ec2=boto3.resource('ec2')
+now=datetime.datetime.now()
+
+if now.day < 10:
+  theday='0'+str(now.day)
+else:
+  theday=now.day
+
+instance=ec2.create_instances(
+	ImageId='ami-0a08e141df9c285a5',
+	MinCount=1,
+	MaxCount=1,
+	InstanceType='t2.micro',
+	KeyName="steveshilling",
+	SecurityGroupIds=[
+		'sg-0c2c9cd5b7d66207d'
+	],
+	SubnetId='subnet-0208595b',
+	UserData='file://add-apache',
+	TagSpecifications=[
+            {
+		'ResourceType': 'instance',
+		'Tags': [
+			{ 'Key': 'Name', 'Value': 'SteveVM' },
+			{ 'Key': 'Project', 'Value': 'ALAcademy'+str(now.year) },
+			{ 'Key': 'Info', 'Value': 'Academy Test VM' },
+			{ 'Key': 'Owner', 'Value': 'steve.shilling@automationlogic.com' },
+			{ 'Key': 'EndDate', 'Value': '20200131' },
+                        { 'Key': 'StartDate', 'Value': str(now.year)+str(now.month)+str(theday) },
+		]
+            },
+            {
+		'ResourceType': 'volume',
+		'Tags': [
+			{ 'Key': 'Name', 'Value': 'SteveVM' },
+			{ 'Key': 'Project', 'Value': 'ALAcademy'+str(now.year) },
+			{ 'Key': 'Info', 'Value': 'Academy Test VM' },
+			{ 'Key': 'Owner', 'Value': 'steve.shilling@automationlogic.com' },
+			{ 'Key': 'EndDate', 'Value': '20200131' },
+                        { 'Key': 'StartDate', 'Value': str(now.year)+str(now.month)+str(theday) },
+		]
+            }
+	]
+)
+
+print(instance)
