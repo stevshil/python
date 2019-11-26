@@ -1,0 +1,141 @@
+#!/usr/bin/python3.7
+
+# Idempotent delete script, WIP - needs resilience around NAT GW deletion and IGW
+import boto3
+import sys
+import time
+
+ec2 = boto3.resource('ec2')
+ec2client = ec2.meta.client
+
+eips=[]
+
+# Remove Instances
+
+# Remove Nat Gateway
+print("Attempting to remove Nat Gateways")
+ngw=ec2client.describe_nat_gateways(
+    Filters=[
+       {'Name': 'vpc-id','Values': [sys.argv[1]]}
+    ])
+
+for curngw in ngw['NatGateways']:
+    ngwid=curngw['NatGatewayId']
+    #print(curngw)
+    for ip in curngw['NatGatewayAddresses']:
+        if curngw['State'] != 'deleted':
+            eips.append(ip['AllocationId'])
+    try:
+        ec2client.delete_nat_gateway(NatGatewayId=ngwid)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+    
+    try:
+        curstate=curngw['State']
+        while curstate != 'deleted':
+            time.sleep(30)
+            thisngw=ec2client.describe_nat_gateways(
+            Filters=[
+                {'Name': 'nat-gateway-id','Values': [ngwid]}
+            ])
+            curstate=thisngw['State']
+    except Exception as e:
+        pass
+print("Deleted Nat Gateways")
+
+# Delete the eips
+print("Attempting to delete Elastic IPs")
+if (len(eips) > 0):
+    for eip in eips:
+        try:
+            ec2client.release_address(AllocationId=eip)
+            print("EIP "+str(eip)+" deleted")
+        except Exception as e:
+            print(e)
+            sys.exit(1)
+    print("EIPs deleted")
+else:
+    print("No EIPs to delete")
+
+# Delete route tables
+rtbs=ec2client.describe_route_tables(
+        Filters=[
+            {'Name': 'vpc-id','Values': [sys.argv[1]]}
+        ])
+
+for currtbs in rtbs['RouteTables']:
+    curtbid=currtbs['RouteTableId']
+    try:
+        ec2client.delete_route_table(RouteTableId=curtbid)
+    except:
+        pass
+
+# Remove subnets
+subnets=ec2client.describe_subnets(
+        Filters=[
+            {'Name': 'vpc-id','Values': [sys.argv[1]]}
+        ])
+
+print("Deleting subnets")
+for cursubnet in subnets['Subnets']:
+    subid=cursubnet['SubnetId']
+    try:
+        ec2client.delete_subnet(SubnetId=subid)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+print("Subnets deleted")
+
+# Remove IGW
+igw=ec2client.describe_internet_gateways(
+        Filters=[
+            {'Name': 'attachment.vpc-id','Values': [sys.argv[1]]}
+        ])
+
+for curigw in igw['InternetGateways']:
+    print(curigw['InternetGatewayId'])
+    try:
+        ec2client.detach_internet_gateway(InternetGatewayId=str(curigw['InternetGatewayId']),VpcId=sys.argv[1])
+        ec2client.delete_internet_gateway(InternetGatewayId=str(curigw['InternetGatewayId']))
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+
+# Delete routes and tables
+rtbs=ec2client.describe_route_tables(
+        Filters=[
+            {'Name': 'vpc-id','Values': [sys.argv[1]]}
+        ])
+
+#print(rtbs)
+maintbid=""
+print("Deleting routes and routing tables")
+for currtbs in rtbs['RouteTables']:
+    curtbid=currtbs['RouteTableId']
+    Cidrs=currtbs['Routes']
+    Assocs=currtbs['Associations']
+    try:
+        for route in Cidrs:
+            ip=route['DestinationCidrBlock']
+            if route['GatewayId'] != "local":
+                ec2client.delete_route(DestinationCidrBlock=ip,RouteTableId=curtbid)
+        for assoc in Assocs:
+            associd=assoc['RouteTableAssociationId']
+            if assoc['Main'] == True:
+                print("Main Table: "+str(maintbid))
+                maintbid=curtbid
+            else:
+                ec2client.disassociate_route_table(AssociationId=associd)
+        # Can't delete main table, only VPC can do that
+        if curtbid != maintbid:
+            ec2client.delete_route_table(RouteTableId=curtbid)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+print("Deleted routes and routing tables")
+
+# Remove VPC
+ec2client.delete_vpc(VpcId = sys.argv[1])

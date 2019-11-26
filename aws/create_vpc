@@ -1,0 +1,74 @@
+#!/usr/bin/python3.7
+
+# Script to create VPC with 2 AZs and 2 subnets with IGW
+# The public will consist of a NAT and Bastion, the private a DB
+
+import boto3
+import datetime
+
+now=datetime.datetime.now()
+
+if now.day < 10:
+  theday='0'+str(now.day)
+else:
+  theday=str(now.day)
+
+ec2=boto3.resource('ec2',region_name='eu-west-3')
+client=boto3.client('ec2')
+
+mytags=[{"Key": "Name", "Value": "SteveVPC"},{"Key": "Project","Value": "ALAcademy"+str(now.year)},{"Key": "Owner", "Value": "Steve Shilling"}, {"Key": "StartDate", "Value": str(now.year)+str(now.month)+theday}, {"Key": "EndDate","Value": "20200131"}]
+
+# Create VPC
+vpc=ec2.create_vpc(CidrBlock='172.30.0.0/16')
+vpc.create_tags(Tags=mytags)
+vpc.wait_until_available()
+print("VPCID: "+vpc.id)
+
+# Create IGW
+internetgateway = ec2.create_internet_gateway()
+internetgateway.create_tags(Tags=mytags)
+vpc.attach_internet_gateway(InternetGatewayId=internetgateway.id)
+
+# create a public route table and a public route
+pubroutetable = vpc.create_route_table()
+pubroutetable.create_tags(Tags=mytags)
+pubroute = pubroutetable.create_route(DestinationCidrBlock='0.0.0.0/0', GatewayId=internetgateway.id)
+
+# create public and private subnets and associate it with route table
+pubsub1 = ec2.create_subnet(CidrBlock='172.30.1.0/24', VpcId=vpc.id, AvailabilityZone='eu-west-3a')
+pubsub1.create_tags(Tags=mytags)
+psub1=client.modify_subnet_attribute(SubnetId=pubsub1.id,MapPublicIpOnLaunch={'Value': True})
+pubsub2 = ec2.create_subnet(CidrBlock='172.30.10.0/24', VpcId=vpc.id, AvailabilityZone='eu-west-3b')
+pubsub2.create_tags(Tags=mytags)
+psub2=client.modify_subnet_attribute(SubnetId=pubsub2.id,MapPublicIpOnLaunch={'Value': True})
+privsub1 = ec2.create_subnet(CidrBlock='172.30.2.0/24', VpcId=vpc.id, AvailabilityZone='eu-west-3a')
+privsub1.create_tags(Tags=mytags)
+privsub2 = ec2.create_subnet(CidrBlock='172.30.20.0/24', VpcId=vpc.id, AvailabilityZone='eu-west-3b')
+privsub2.create_tags(Tags=mytags)
+pubroutetable.associate_with_subnet(SubnetId=pubsub1.id)
+pubroutetable.associate_with_subnet(SubnetId=pubsub2.id)
+print("PUBSUB1: "+str(pubsub1.id))
+print("PUBSUB2: "+str(pubsub2.id))
+print("PRIVSUB1: "+str(privsub1.id))
+print("PRIVSUB2: "+str(privsub2.id))
+
+
+# Create NAT gateway
+eip=client.allocate_address(Domain='vpc')
+print("EIP: "+str(eip['AllocationId']))
+print("PubSubID: "+str(pubsub1.id))
+nat_gw = client.create_nat_gateway(SubnetId=pubsub1.id,AllocationId=eip['AllocationId'])
+#print("NatGW: "+str(nat_gw))
+print("NatGWID: "+str(nat_gw['NatGateway']['NatGatewayId']))
+ngwid=str(nat_gw['NatGateway']['NatGatewayId'])
+client.create_tags(Resources=[ngwid],Tags=mytags)
+natgwwait = client.get_waiter('nat_gateway_available')
+natgwwait.wait(NatGatewayIds=[ngwid],WaiterConfig={'Delay': 30, 'MaxAttempts': 20})
+
+# Create private routing table with NatGW
+privroutetable = vpc.create_route_table()
+privroutetable.create_tags(Tags=mytags)
+privroute = privroutetable.create_route(DestinationCidrBlock='0.0.0.0/0', NatGatewayId=ngwid)
+privroutetable.associate_with_subnet(SubnetId=privsub1.id)
+privroutetable.associate_with_subnet(SubnetId=privsub2.id)
+
