@@ -1,0 +1,23 @@
+#!/usr/bin/python
+
+# Using SLACK via HTTP request and webhook
+
+import requests
+import json
+from requests.exceptions import HTTPError
+
+URL="https://hooks.slack.com/services/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"
+headers={"content-type": "application/json"}
+
+data='{"channel": "#academy_api_testing", "username": "mystery_man", "text": "Hello World :unicorn2:", "color": "warning", "icon_url": "https://www.searchpng.com/wp-content/uploads/2019/02/Avengers-Logo-PNG-Transparent-Avengers-Logo-715x715.png"}'
+#PARAMS=json.dumps(data)
+
+try:
+    r=requests.post(URL, data="{}".format(data))
+except HTTPError as http_err:
+    print(http_err)
+except Exception as err:
+    print(err)
+
+for msg in (r.status_code, r.reason, r.content, r.text, r.headers):
+    print(msg)
