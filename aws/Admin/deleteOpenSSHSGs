@@ -1,0 +1,110 @@
+#!/usr/bin/python3.7
+
+import boto3
+import datetime
+
+ec2=boto3.resource('ec2')
+globalclient = boto3.client('ec2')
+now=datetime.datetime.now()
+
+if now.day < 10:
+  theday='0'+str(now.day)
+else:
+  theday=now.day
+
+regions = globalclient.describe_regions()
+#print(regions)
+
+for region in regions['Regions']:
+    print("REGION: "+region['RegionName'])
+    client = boto3.client('ec2',region_name=region['RegionName'])
+
+# Get a list of instances using security groups so we can disassociate
+regions = globalclient.describe_regions()
+
+instancesgs={}
+defaultSG={}
+
+for region in regions['Regions']:
+    print("REGION: "+region['RegionName'])
+    client = boto3.client('ec2',region_name=region['RegionName'])
+
+
+    # Get list of instance IDs per SG
+    reservations=client.describe_instances()
+    for reservation in reservations['Reservations']:
+        for instance in reservation['Instances']:
+            for nic in instance['NetworkInterfaces']:
+                for group in nic['Groups']:
+                    try:
+                        instancesgs[group['GroupId']].append(instance['InstanceId'])
+                    except:
+                        instancesgs[group['GroupId']]=[instance['InstanceId']]
+
+    # Get the security groups and delete
+    allsgs=client.describe_security_groups()
+
+    for sg in allsgs['SecurityGroups']:
+        if sg['GroupName'] == 'default':
+            try:
+                defaultSG[sg['VpcId']]=sg['GroupId']
+            except:
+                pass
+
+    for sg in allsgs['SecurityGroups']:
+        # Get the default SG to add to instance
+        if sg['GroupName'] != 'default':
+            vpcid=sg['VpcId']
+            for ipperm in sg['IpPermissions']:
+                for iprange in ipperm['IpRanges']:
+                    try:
+                        # Flag open access to SSH
+                        if iprange['CidrIp'] == "0.0.0.0/0" and ipperm['FromPort'] == 22:
+                            # Check if any instances are using the SG
+                            print("Checking instances for 22")
+                            if sg['GroupId'] in instancesgs.keys():
+                                for instance in instancesgs[sg['GroupId']]:
+                                    vm=ec2.Instance(instance)
+                                    started=0
+                                    try:
+                                        vm.start()
+                                        vm.wait_until_running()
+                                        started=1
+                                    except:
+                                        pass
+                                    print("Setting "+instance+" to "+defaultSG[vpcid])
+                                    vm.modify_attribute(
+                                        Groups=[defaultSG[vpcid]]
+                                    )
+                                    if started == 1:
+                                        vm.stop()
+                                    client.stop_instances(InstanceIds=[instance])
+                            # Delete the SG
+                            print("Deleting "+sg['GroupId'])
+                            client.delete_security_group(GroupId=sg['GroupId'])
+                    except KeyError:
+                        # Flag an ALL ports rule allowing anywhere, as there is not FromPort
+                        if iprange['CidrIp'] == "0.0.0.0/0":
+                            # Check if any instances are using the SG
+                            print("Checking instances for all ports")
+                            if sg['GroupId'] in instancesgs.keys():
+                                for instance in instancesgs[sg['GroupId']]:
+                                    vm=ec2.Instance(instance)
+                                    try:
+                                        vm.start()
+                                        vm.wait_until_running()
+                                        started=1
+                                    except:
+                                        pass
+                                    try:
+                                        print("Setting "+instance+" to "+defaultSG[vpcid])
+                                    except:
+                                        pass
+                                    vm.modify_attribute(
+                                        Groups=[defaultSG[vpcid]]
+                                    )
+                                    if started == 1:
+                                        vm.stop()
+                            # Delete the SG
+                            print("Deleting "+sg['GroupId'])
+                            client.delete_security_group(GroupId=sg['GroupId'])

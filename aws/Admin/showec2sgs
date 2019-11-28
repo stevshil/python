@@ -1,0 +1,34 @@
+#!/usr/bin/python3.7
+
+import boto3
+import datetime
+
+ec2=boto3.resource('ec2')
+globalclient = boto3.client('ec2')
+now=datetime.datetime.now()
+
+if now.day < 10:
+  theday='0'+str(now.day)
+else:
+  theday=now.day
+
+regions = globalclient.describe_regions()
+#print(regions)
+
+instancesgs={}
+
+for region in regions['Regions']:
+    print("REGION: "+region['RegionName'])
+    client = boto3.client('ec2',region_name=region['RegionName'])
+    reservations=client.describe_instances()
+    for reservation in reservations['Reservations']:
+        for instance in reservation['Instances']:
+            for nic in instance['NetworkInterfaces']:
+                for group in nic['Groups']:
+                    try:
+                        instancesgs[group['GroupId']].append(instance['InstanceId'])
+                    except:
+                        instancesgs[group['GroupId']]=[instance['InstanceId']]
+                    #print(instance['InstanceId']+","+group['GroupId'])
+
+print(instancesgs)

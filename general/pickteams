@@ -4,6 +4,10 @@ from random import random
 import sys
 import traceback
 
+if len(sys.argv) < 2 :
+    print("SYNTAX: "+sys.argv[0]+" <team size> <number of teams>")
+    sys.exit(1)
+
 teamFH=open("teams.txt","r")
 teamsize=int(sys.argv[1])-1
 numteams=int(sys.argv[2])

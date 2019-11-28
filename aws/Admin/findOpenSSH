@@ -1,0 +1,34 @@
+#!/usr/bin/python3.7
+
+import boto3
+import datetime
+
+ec2=boto3.resource('ec2')
+globalclient = boto3.client('ec2')
+now=datetime.datetime.now()
+
+if now.day < 10:
+  theday='0'+str(now.day)
+else:
+  theday=now.day
+
+regions = globalclient.describe_regions()
+#print(regions)
+
+for region in regions['Regions']:
+    print("REGION: "+region['RegionName'])
+    client = boto3.client('ec2',region_name=region['RegionName'])
+    allsgs=client.describe_security_groups()
+    for sg in allsgs['SecurityGroups']:
+        if sg['GroupName'] != 'default':
+            for ipperm in sg['IpPermissions']:
+                for iprange in ipperm['IpRanges']:
+                    try:
+                        # Flag open access to SSH
+                        if iprange['CidrIp'] == "0.0.0.0/0" and ipperm['FromPort'] == 22:
+                            print(sg['GroupId'])
+                            #print(sg)
+                    except:
+                        # Flag an ALL ports rule allowing anywhere, as there is not FromPort
+                        if iprange['CidrIp'] == "0.0.0.0/0":
+                            print("No FromPort for "+sg['GroupId'])

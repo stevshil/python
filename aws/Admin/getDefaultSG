@@ -1,0 +1,26 @@
+#!/usr/bin/python3.7
+
+import boto3
+
+ec2=boto3.resource('ec2')
+globalclient = boto3.client('ec2')
+
+regions = globalclient.describe_regions()
+#print(regions)
+
+defaultSG={}
+
+for region in regions['Regions']:
+    print("REGION: "+region['RegionName'])
+    client = boto3.client('ec2',region_name=region['RegionName'])
+    allsgs=client.describe_security_groups()
+    for sg in allsgs['SecurityGroups']:
+#        print(sg)
+        if sg['GroupName'] == 'default':
+            #print(sg['GroupId'])
+            try:
+                defaultSG[sg['VpcId']]=sg['GroupId']
+            except:
+                pass
+print(defaultSG)
+
