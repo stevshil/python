@@ -1,0 +1,41 @@
+- job:
+    name: PetClinic_Build
+    project-type: maven
+    defaults: global
+    description: 'PetClinic Maven Build'
+    disabled: false
+    display-name: 'Maven compile of PetClinic'
+    concurrent: true
+    quiet-period: 5
+    block-downstream: false
+    block-upstream: false
+    retry-count: 3
+    logrotate:
+      daysToKeep: 3
+      numToKeep: 10
+      artifactDaysToKeep: -1
+      artifactNumToKeep: -1
+    scm:
+      - git:
+          configVersion: 2
+          url: https://bitbucket.org/JangleFett/petclinic.git
+          branches:
+            - '*/master'
+    builders:
+      - maven-builder:
+          name: mvn3
+          pom: pom.xml
+          goals: package
+      - maven-target:
+          maven-version: Maven3
+          pom: pom.xml
+          goals: package
+          private-repository: false
+          properties:
+            - "-Dmaven.test.skip=true"
+    # postbuilders:
+    #   - maven-target:
+    #       maven-version: mvn30
+    #       goals: package
+    #       settings: jenkins.mvn.DefaultSettingsProvider
+    #       global-settings: jenkins.mvn.DefaultGlobalSettingsProvider

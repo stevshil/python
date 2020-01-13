@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Create and update Jenkins job
+
+jenkins-jobs --conf ./jenkins_jobs.ini test $1
