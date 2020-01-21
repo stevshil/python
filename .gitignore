@@ -1,2 +1,6 @@
 general/teams.txt
 **/SLACK_TOKEN
+**/bin
+**/include
+**/lib
+**/lib64

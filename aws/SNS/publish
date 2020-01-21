@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+import boto3
+sns = boto3.client('sns', region_name='eu-west-2')
+
+response = sns.publish( TopicArn='arn:aws:sns:eu-west-2:109964479621:stevetest',Message='Hello World!', )
+
+print(response)
+

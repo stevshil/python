@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+import boto3
+sns=boto3.client('sns', region_name='eu-west-2')
+
+response = sns.list_topics()
+topics = [topic['TopicArn'] for topic in response['Topics']]
+print("Topic List: %s" % topics)
+
+response = sns.list_subscriptions_by_topic(TopicArn='arn:aws:sns:eu-west-2:109964479621:stevetest')
+subscriptions = []
+for subscription in response['Subscriptions']:
+    subscriptions.append(subscription)
+
+print("Subscription List: %s" % subscriptions)
+
+# List all
+response = sns.list_subscriptions()
+for subscription in response['Subscriptions']:
+    subscriptions.append(subscription)
+
+print("Subscription List: %s" % subscriptions)
