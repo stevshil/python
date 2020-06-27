@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+import skew
+from skew.arn import ARN
+from skew import scan
+arn = ARN()
+services=arn.service.choices()
+services.sort()
+region="eu-west-1"
+accountid="109964479621"
+
+for service in services:
+    #print(service)
+    print('******' + service + '******')
+    #arn.service.pattern = "arn:aws:"+service+":"+region+":"+accountid+":*"
+    arn.service.pattern = "arn:aws:"+service+":"+region+":"+accountid+":*"
+    arn2=scan(arn.service.pattern)
+    try:
+        for resource in arn2:
+            print(resource.data)
+    except:
+        print("Broken")

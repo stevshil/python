@@ -1,0 +1,59 @@
+200
+OK
+{
+    "success": {
+        "total": 1
+    },
+    "contents": {
+        "quotes": [
+            {
+                "quote": "Let our advance worrying become advance thinking and planning.",
+                "length": "62",
+                "author": "Winston Churchill",
+                "tags": [
+                    "anxiety",
+                    "inspire",
+                    "planning",
+                    "time-management",
+                    "tod"
+                ],
+                "category": "inspire",
+                "date": "2019-12-13",
+                "permalink": "https://theysaidso.com/quote/winston-churchill-let-our-advance-worrying-become-advance-thinking-and-planning",
+                "title": "Inspiring Quote of the day",
+                "background": "https://theysaidso.com/img/bgs/man_on_the_mountain.jpg",
+                "id": "o3aMOSUwOPqUnJv9YyfYHweF"
+            }
+        ],
+        "copyright": "2017-19 theysaidso.com"
+    }
+}
+{
+    "success": {
+        "total": 1
+    },
+    "contents": {
+        "quotes": [
+            {
+                "quote": "Let our advance worrying become advance thinking and planning.",
+                "length": "62",
+                "author": "Winston Churchill",
+                "tags": [
+                    "anxiety",
+                    "inspire",
+                    "planning",
+                    "time-management",
+                    "tod"
+                ],
+                "category": "inspire",
+                "date": "2019-12-13",
+                "permalink": "https://theysaidso.com/quote/winston-churchill-let-our-advance-worrying-become-advance-thinking-and-planning",
+                "title": "Inspiring Quote of the day",
+                "background": "https://theysaidso.com/img/bgs/man_on_the_mountain.jpg",
+                "id": "o3aMOSUwOPqUnJv9YyfYHweF"
+            }
+        ],
+        "copyright": "2017-19 theysaidso.com"
+    }
+}
+CaseInsensitiveDict({'x-ratelimit-remaining': '10', 'upgrade': 'h2', 'content-language': 'en', 'x-powered-by': 'Luracast Restler v3.0.0rc3', 'transfer-encoding': 'chunked', 'expires': 'Sat, 14 Dec 2019 01:32:05 GMT', 'server': 'Apache', 'connection': 'Upgrade', 'x-ratelimit-limit': '10 per hour', 'cache-control': 'private, max-age=43200, pre-check=86400, post-check=43200', 'date': 'Fri, 13 Dec 2019 13:32:04 GMT', 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,PUT,OPTIONS', 'content-type': 'application/json; charset=utf-8', 'access-control-allow-headers': 'x-access-token', 'x-auth-status': 'true'})

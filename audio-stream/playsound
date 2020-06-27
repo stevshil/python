@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+import time
+from playsound import playsound
+#from pygame import mixer
+#import vlc
+#from mpyg321.mpyg321 import MPyg321Player
+
+# Below works with WAV files only
+sound="/home/steve/Documents/projects/PiMediaPlayer/ignore/music/30 - Main Title.mp3"
+#sound="/home/steve/Documents/projects/PiMediaPlayer/ignore/music/101-20th Century Fox Fanfare (Alfred Newman, 1954).mp3"
+#playsound(sound, True)
+playsound(sound)
+
+# Below requires the play to be there continuous (so should work with the PiGUI)
+# Reference for commands http://www.pygame.org/docs/ref/music.html
+#mixer.init()
+#sound="/home/steve/Documents/projects/PiMediaPlayer/ignore/music/30 - Main Title.mp3"
+#print "Playing: "+sound
+#mixer.music.load(sound)
+#mixer.music.play()
+#time.sleep(10)
+#sound="/home/steve/Documents/projects/PiMediaPlayer/ignore/music/101-20th Century Fox Fanfare (Alfred Newman, 1954).mp3"
+#print "Playing: "+sound
+#mixer.music.load(sound)
+#mixer.music.play()
+#time.sleep(10)
+
+# Doesn't play
+#play=vlc.MediaPlayer("file://"+sound)
+#play.play()
+
+# Below required mpg321 which is not as supported on Linux now
+#player=MPyg321Player()
+#player.play_song(sound)
+#sleep(10)
+#player.pause()
+#sleep(5)
+#player.resume()
+#sleep(10)
+#player.stop()
+#player.quit()

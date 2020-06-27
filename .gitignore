@@ -4,3 +4,9 @@ general/teams.txt
 **/include
 **/lib
 **/lib64
+**/mysecret.json
+googleapi/bin
+googleapi/lib
+googleapi/lib64
+googleapi/include
+**/*.zip

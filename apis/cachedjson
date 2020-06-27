@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import requests
+import os.path
+import json
+
+# Local file name to store JSON data from URL
+datafile="countries.json"
+
+# Decide if to request URL or use local file
+if not os.path.isfile(datafile):
+    print("Fetching data")
+    URL="https://restcountries.eu/rest/v2/all"
+    page=requests.get(url=URL) # Get the data
+    fh=open(datafile,"w") # Open file where we will store data
+    data=page.json() # Store the returned data as JSON for use in the program
+    j=json.dumps(data) # Dump the data as JSON properly
+    fh.write(j) # Write the JSON to the file
+    fh.close() # Close the file
+else:
+    print("Using local file")
+    fh=open(datafile,"r") # Open the local JSON data file
+    j=fh.readlines() # Read all lines into j list
+    j2="".join(j) # Convert to string for the json.loads function
+    data=json.loads(j2) # Store the JSON in our data variable for the program
+    fh.close() # Close the file as we have the data
+
+for country in data:
+  print("Country name: "+country['name'])
+  print("\tRegion: "+country['region'])
+  print("\tLat/Long:")
+  for latlong in country['latlng']:
+    #print("\tLat/Long: "+country['latlng']))
+    print("\t\t- "+str(latlong))

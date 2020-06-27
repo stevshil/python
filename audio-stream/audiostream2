@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import pyglet
+
+sound="/home/steve/Documents/projects/PiMediaPlayer/ignore/music/30 - Main Title.mp3"
+
+song=pyglet.media.load(sound)
+song.play()
+pyglet.app.run()

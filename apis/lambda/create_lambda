@@ -1,0 +1,20 @@
+#!/bin/bash
+
+functionname="slackquote"
+runtime="python3.8"
+handler="randomslack.sendquote"
+file="randomslack.zip"
+
+# Create the lambda function
+aws lambda create-function --function-name ${functionname} --runtime ${runtime} --role arn:aws:iam::109964479621:role/lambda_basic_execution --handler ${handler} --description "Steves Slack Quotes" --tags Name=StevesLambda --zip-file fileb://../${file} --timeout 10
+
+# Create the Cloudwatch rule
+event=$(aws events put-rule --name "LambdaSlackQuote" --schedule-expression "cron(0/8 9-17 ? * MON-FRI *)")
+eventid=$(echo "$event" | jq -r '.id')
+arn=$(echo "$event" | jq -r '.resources[]')
+
+# Associate lambda to rule
+aws lambda add-permission --function-name ${functionname} --statement-id ${eventid} --action 'lamdba:InvokeFunction' --principal events.amazonaws.com --source-arn ${arn}
+
+# Add rule to lambda
+aws events put-targets --rule LambdaSlackQuote --targets "Id","1","Arn","${arn}"

@@ -1,0 +1,47 @@
+#!/usr/bin/python
+
+# Using SLACK via HTTP request and webhook
+
+import requests
+import json
+from requests.exceptions import HTTPError
+
+def sendquote(event, context):
+
+    # Get the random message (can only do 10 per hour)
+    URL="http://quotes.rest/qod.json?category=inspire"
+    headers={"content-type": "application/json"}
+
+    try:
+        r=requests.get(URL, headers=headers)
+    except HTTPError as http_err:
+        print(http_err)
+    except Exception as err:
+        print(err)
+
+    if r.status_code == 200:
+        #print(r.text)
+        data=json.loads(r.text)
+        for quote in data['contents']['quotes']:
+            message=quote['quote']+"\n"+quote['author']
+    else:
+        print("No data returned")
+        exit(1)
+
+    URL="https://hooks.slack.com/services/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"
+    headers={"content-type": "application/json"}
+
+    data={"channel": "#academy_api_testing", "username": "mystery_man", "text": message, "color": "warning", "icon_url": "https://www.searchpng.com/wp-content/uploads/2019/02/Avengers-Logo-PNG-Transparent-Avengers-Logo-715x715.png"}
+    PARAMS=json.dumps(data)
+
+    try:
+        r=requests.post(URL, data=PARAMS)
+    except HTTPError as http_err:
+        print(http_err)
+        exit(2)
+    except Exception as err:
+        print(err)
+        exit(3)
+
+    for msg in (r.status_code, r.reason, r.content, r.text, r.headers):
+        print(msg)

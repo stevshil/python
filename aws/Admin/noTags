@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import boto3
+
+resourcelist=[
+        'apigateway',
+        'apigatewayv2',
+        'applicationautoscaling',
+        'autoscaling',
+        'cloudformation',
+        'cloudwatch',
+        'codebuild',
+        'codecommit',
+        'codedeploy',
+        'codepipeline',
+        'dynamodb',
+        'ebs',
+        'ec2',
+        'ecs',
+        'efs',
+        'eks',
+        'elasticache',
+        'elasticbeanstalk',
+        'elasticloadbalancing',
+        'elasticloadbalancingv2',
+        'iam',
+        'kms',
+        'lambda',
+        'lightsail',
+        'rds',
+        'redshift',
+        'route53',
+        's3',
+        'SMS',
+        'SNS',
+        'SQS']
+
+#for resource in resourcelist:
+    #resources=boto3.resource(resource)
+    ##client=boto3.client()
+
+    #print()
+
+import skew
+from skew.arn import ARN
+arn = ARN()
+services=arn.service.choices()
+print(services.sort())
+
