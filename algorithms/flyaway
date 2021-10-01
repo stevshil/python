@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+# This script is used to solve and prove that the FLY+FLY+FLY=AWAY has more than
+# one answer
+
+def checkFLY(FLY):
+  # Split FLY to make sure we don't have duplicate numbers
+  (F,L,Y)=list(str(FLY))
+  # Check that Y is not 0, as it must be a number
+  if int(Y) == 0:
+    return 0
+  elif F == L or F == Y or L == Y:
+    # Check that the numbers are not identical
+    return 0
+  else:
+    return 1
+
+def checkAWAY(AWAY):
+  # Split AWAY to compare values
+  away=list(str(AWAY))
+  if len(away) <= 3:
+      return 0
+  if away[0] != away[1] or away[0] != away[3]:
+      if away[0] == away[2]:
+          # Only position 4 and 2 can be identical
+          return 1
+      else:
+          return 0
+  else:
+      return 0
+
+def checkFLYAWAY(FLY,AWAY):
+    (F,L,Y)=list(str(FLY))
+    away=list(str(AWAY))
+
+    if Y == away[-1]:
+        #if F in away or L in away:
+            return 1
+        #else:
+        #    return 0
+    else:
+        return 0
+
+FLY=100
+AWAY=0
+FLY_AWAY={}
+
+checkFLY(FLY)
+# We need to loop from 100 to 999 to find the 3 digits to make up F, L and Y
+while FLY <= 999:
+  if checkFLY(FLY) == 0:
+    FLY+=1
+    continue
+
+  # Now multiply the value by 3 to get AWAY
+  AWAY=FLY*3
+
+  # Check that the values to A, W and Y are unique and that A is the same
+  if checkAWAY(AWAY) == 0:
+    FLY+=1
+    continue
+  elif checkFLYAWAY(FLY,AWAY) == 1:
+    if AWAY%3 == 0:
+      FLY_AWAY[FLY]=AWAY
+      FLY+=1
+  else:
+    FLY+=1
+    continue
+
+for key in FLY_AWAY:
+    print("FLY:",key," AWAY:",FLY_AWAY[key])
