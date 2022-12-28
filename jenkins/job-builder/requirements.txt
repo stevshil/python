@@ -23,6 +23,6 @@ six==1.13.0
 stevedore==1.31.0
 toml==0.10.0
 tox==3.14.3
-urllib3==1.25.7
+urllib3==1.26.5
 virtualenv==16.7.9
 zipp==0.6.0
