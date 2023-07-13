@@ -18,7 +18,7 @@ py==1.10.0
 pyparsing==2.4.6
 python-jenkins==1.6.0
 PyYAML==5.4
-requests==2.22.0
+requests==2.31.0
 six==1.13.0
 stevedore==1.31.0
 toml==0.10.0
