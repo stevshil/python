@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Author: Steve Shilling
+# Date Created: 13th July 2023
+
 import re, json
 from pymongo import MongoClient
 
