@@ -5,14 +5,16 @@ import os
 
 # Set your OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
+messages=[]
 
-def chatbot(prompt,last_context):
+# def chatbot(prompt,last_context):
+def chatbot(prompt):
     client = OpenAI(api_key = openai.api_key)
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt+" "+last_context}
+            *prompt  # Flatten the array to a comma-separated list of dictionary values
         ],
         max_tokens=150
     )
@@ -24,10 +26,6 @@ if __name__ == "__main__":
         user_input = input("You: ")
         if user_input.lower() == 'exit':
             break
-        try:
-            lastresponse=response
-        except:
-            lastresponse=""
-        # print("Last response: ", lastresponse)
-        response = chatbot(user_input,lastresponse)
+        messages.append({"role": "user", "content": user_input})
+        response = chatbot(messages)
         print("Bot:", response)
