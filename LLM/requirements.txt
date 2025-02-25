@@ -1,0 +1,5 @@
+transformers==4.48.1 
+torch==2.6.0 
+accelerate
+openai==1.45.1
+httpx<0.28

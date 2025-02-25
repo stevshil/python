@@ -10,3 +10,8 @@ googleapi/lib
 googleapi/lib64
 googleapi/include
 **/*.zip
+pywin
+**/.pytest_cache
+**/__pycache__
+**/virtual_env
+**/.env
